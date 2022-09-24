@@ -21,7 +21,7 @@ func signup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user string
-	erro := db.QueryRow(context.Background(), "SELECT username FROM security.users WHERE username = $1", creds.Username).Scan(&user)
+	erro := db.QueryRow(context.Background(), "SELECT username FROM security.user WHERE username = $1", creds.Username).Scan(&user)
 	switch erro {
 	case nil:
 		http.Error(w, "User exist already", http.StatusConflict)
@@ -38,10 +38,12 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 
-	if _, err := db.Exec(context.Background(), "insert into security.users (username,password) values($1,$2)", creds.Username, passwordHash); err == nil {
+	if _, err := db.Exec(context.Background(), "insert into security.user (username,password) values($1,$2)", creds.Username, passwordHash); err == nil {
 		w.WriteHeader(http.StatusOK)
+		return
 	} else {
 		log.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
 }

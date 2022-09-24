@@ -5,17 +5,16 @@ import (
 	"encoding/json"
 	"first-server/hash"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 )
 
-// DUMMY REMOVE LATER
-var users = map[string]string{
-	"user1": "password1",
-	"user2": "password2",
-}
+type contextKey int
+
+const authenticatedUserKey contextKey = 0
 
 // Create a struct to read the username and password from the request body
 type Credentials struct {
@@ -27,6 +26,7 @@ type Credentials struct {
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
 type Claims struct {
 	Username string `json:"username"`
+	UserId   int    `json:"userId"`
 	jwt.StandardClaims
 }
 
@@ -45,7 +45,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(creds)
 
 	var passwordHash string
-	if err := db.QueryRow(context.Background(), "SELECT password FROM security.users WHERE username = $1", creds.Username).Scan(&passwordHash); err != nil {
+	if err := db.QueryRow(context.Background(), "SELECT password FROM security.user WHERE username = $1", creds.Username).Scan(&passwordHash); err != nil {
 		http.Error(w, "Wrong Password or User", http.StatusUnauthorized)
 		return
 	}
@@ -55,12 +55,19 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var userId int
+	if err := db.QueryRow(context.Background(), "SELECT id FROM security.user WHERE username = $1", creds.Username).Scan(&userId); err != nil {
+		log.Println(err)
+		http.Error(w, "Somethink went really wrong", http.StatusUnauthorized)
+		return
+	}
 	// Declare the expiration time of the token
 	// here, we have kept it as 5 minutes
 	expirationTime := time.Now().Add(5 * time.Minute)
 	// Create the JWT claims, which includes the username and expiry time
 	claims := &Claims{
 		Username: creds.Username,
+		UserId:   userId,
 		StandardClaims: jwt.StandardClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: expirationTime.Unix(),
@@ -183,6 +190,12 @@ func CheckToken(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		//create a new request context containing the authenticated user
+		ctxWithUser := context.WithValue(r.Context(), authenticatedUserKey, claims.UserId)
+		//create a new request using that new context
+		rWithUser := r.WithContext(ctxWithUser)
+		//call the real handler, passing the new request
+
+		next.ServeHTTP(w, rWithUser)
 	})
 }
