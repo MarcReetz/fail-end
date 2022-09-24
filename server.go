@@ -67,6 +67,7 @@ func main() {
 			})
 			r.Post("/fail", createFail)
 			r.Delete("/fail", deletFail)
+			r.Put("/fail/hit", addHit)
 		})
 	})
 

@@ -16,6 +16,10 @@ type Fail struct {
 	Tags        int    `json:"tags"`
 }
 
+type Hit struct {
+	Id int `json:"id"`
+}
+
 func createFail(w http.ResponseWriter, r *http.Request) {
 	var fail Fail
 
@@ -46,7 +50,7 @@ func deletFail(w http.ResponseWriter, r *http.Request) {
 
 	var fail Fail
 
-	if err := json.NewDecoder(r.Body).Decode(&fail); err != nil && fail.Id != 0 {
+	if err := json.NewDecoder(r.Body).Decode(&fail); err != nil || fail.Id == 0 {
 		http.Error(w, "Not A Valid Fail", http.StatusBadRequest)
 		return
 	}
@@ -56,6 +60,27 @@ func deletFail(w http.ResponseWriter, r *http.Request) {
 	if _, err := db.Exec(context.Background(), "DELETE FROM security.fail WHERE id = $1 AND user_id = $2", fail.Id, userId); err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
+		return
+	} else {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+}
+
+func addHit(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(authenticatedUserKey)
+
+	var hit Hit
+	if err := json.NewDecoder(r.Body).Decode(&hit); err != nil || hit.Id == 0 {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	if _, err := db.Exec(context.Background(), "UPDATE security.fail SET hits = hits + 1 WHERE id = $1 AND user_id = $2 ", hit.Id, userId); err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
