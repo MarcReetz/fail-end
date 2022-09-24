@@ -58,13 +58,15 @@ func main() {
 
 	r.Route("/", func(r chi.Router) {
 		r.Get("/api/login", Login)
-		r.Put("/api/signup", signup)
+		r.Post("/api/signup", signup)
 		//Private
 		r.Route("/api/user", func(r chi.Router) {
 			r.Use(CheckToken)
 			r.Get("/home", func(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("login worked"))
 			})
+			r.Post("/fail", createFail)
+			r.Delete("/fail", deletFail)
 		})
 	})
 
