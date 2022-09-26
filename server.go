@@ -66,8 +66,13 @@ func main() {
 				w.Write([]byte("login worked"))
 			})
 			r.Post("/fail", createFail)
+			r.Route("/fail/{failID}", func(r chi.Router) {
+				r.Use(FailCtx)
+				r.Get("/", getFail)
+			})
 			r.Delete("/fail", deletFail)
 			r.Put("/fail/hit", addHit)
+
 		})
 	})
 

@@ -3,8 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"first-server/pointifyer"
 	"log"
 	"net/http"
+	"reflect"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Fail struct {
@@ -13,12 +18,14 @@ type Fail struct {
 	Description string `json:"description"`
 	UserId      int    `json:"userId"`
 	Hits        int    `json:"hits"`
-	Tags        int    `json:"tags"`
+	Tags        []int  `json:"tags"`
 }
 
 type Hit struct {
 	Id int `json:"id"`
 }
+
+const failIdKey contextKey = 1
 
 func createFail(w http.ResponseWriter, r *http.Request) {
 	var fail Fail
@@ -45,6 +52,26 @@ func createFail(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func FailCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		failId := chi.URLParam(r, "failID")
+		if failId == "" {
+			http.Error(w, "No FailId suplied", http.StatusBadRequest)
+			return
+		}
+
+		failIdInt, err := strconv.Atoi(failId)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "No FailId suplied", http.StatusBadRequest)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), failIdKey, failIdInt)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func deletFail(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value(authenticatedUserKey)
 
@@ -58,13 +85,46 @@ func deletFail(w http.ResponseWriter, r *http.Request) {
 	log.Println(fail.Id)
 
 	if _, err := db.Exec(context.Background(), "DELETE FROM security.fail WHERE id = $1 AND user_id = $2", fail.Id, userId); err != nil {
-		log.Println(err)
-		http.Error(w, "Internal Server Error ", http.StatusInternalServerError)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	} else {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
+
+}
+
+func getFail(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(authenticatedUserKey)
+	failId := r.Context().Value(failIdKey)
+
+	log.Println(reflect.TypeOf(userId))
+	log.Println(reflect.TypeOf(failId))
+
+	fail := Fail{}
+
+	columns, _ := pointifyer.Pointify(&fail)
+
+	err := db.QueryRow(context.Background(), "SELECT * FROM security.fail WHERE id = $1 AND user_id = $2", failId, userId).Scan(columns...)
+	log.Println(fail)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusFound)
+		json.NewEncoder(w).Encode(fail)
+	}
+	// if err := db.QueryRow(context.Background(), "SELECT * FROM security.fail WHERE id = $1 AND user_id = $2", failId, userId).Scan(s...); err != nil {
+	// 	log.Println(err)
+	// 	log.Println(s)
+	// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	// } else {
+	// 	log.Println(s)
+	// 	w.Header().Set("Content-Type", "application/json")
+	// 	w.WriteHeader(http.StatusFound)
+	// 	json.NewEncoder(w).Encode(fail)
+	// }
 
 }
 
