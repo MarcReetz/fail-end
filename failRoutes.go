@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"first-server/pointifyer"
 	"log"
 	"net/http"
 	"reflect"
@@ -17,7 +18,7 @@ type Fail struct {
 	Description string `json:"description"`
 	UserId      int    `json:"userId"`
 	Hits        int    `json:"hits"`
-	Tags        int    `json:"tags"`
+	Tags        []int  `json:"tags"`
 }
 
 type Hit struct {
@@ -100,9 +101,13 @@ func getFail(w http.ResponseWriter, r *http.Request) {
 	log.Println(reflect.TypeOf(userId))
 	log.Println(reflect.TypeOf(failId))
 
-	var fail Fail
+	fail := Fail{}
 
-	if err := db.QueryRow(context.Background(), "SELECT * FROM security.fail WHERE id = $1 AND user_id = $2", failId, userId).Scan(&fail.Id, &fail.Title, &fail.Description, &fail.UserId, &fail.Hits, &fail.Tags); err != nil {
+	columns, _ := pointifyer.Pointify(&fail)
+
+	err := db.QueryRow(context.Background(), "SELECT * FROM security.fail WHERE id = $1 AND user_id = $2", failId, userId).Scan(columns...)
+	log.Println(fail)
+	if err != nil {
 		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	} else {
@@ -110,6 +115,16 @@ func getFail(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusFound)
 		json.NewEncoder(w).Encode(fail)
 	}
+	// if err := db.QueryRow(context.Background(), "SELECT * FROM security.fail WHERE id = $1 AND user_id = $2", failId, userId).Scan(s...); err != nil {
+	// 	log.Println(err)
+	// 	log.Println(s)
+	// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	// } else {
+	// 	log.Println(s)
+	// 	w.Header().Set("Content-Type", "application/json")
+	// 	w.WriteHeader(http.StatusFound)
+	// 	json.NewEncoder(w).Encode(fail)
+	// }
 
 }
 
