@@ -3,6 +3,7 @@ module first-server
 go 1.19
 
 require (
+	github.com/georgysavva/scany v1.2.0 // indirect
 	github.com/go-chi/chi v1.5.4 // indirect
 	github.com/go-chi/chi/v5 v5.0.7 // indirect
 	github.com/go-chi/cors v1.2.1 // indirect
