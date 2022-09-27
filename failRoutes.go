@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"first-server/client/utils"
 	"first-server/pointifyer"
 	"log"
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -20,6 +22,8 @@ type Fail struct {
 	Hits        int    `json:"hits"`
 	Tags        []int  `json:"tags"`
 }
+
+var changeAllowedFailField = []string{"title", "description", "tags"}
 
 type Hit struct {
 	Id int `json:"id"`
@@ -143,6 +147,44 @@ func addHit(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func updateFail(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(authenticatedUserKey)
+	failId := r.Context().Value(failIdKey)
+
+	var result map[string]interface{}
+
+	if err := json.NewDecoder(r.Body).Decode(&result); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+	}
+
+	var keys string
+	var elements []any
+	var num = 3
+
+	for key, element := range result {
+		if utils.Contains(changeAllowedFailField, key) {
+			keys += key + " = $" + strconv.Itoa(num) + " ,"
+			num++
+			elements = append(elements, element)
+		}
+	}
+
+	keys = strings.TrimRight(keys, ",")
+
+	SQLString := "UPDATE security.fail SET " + keys + " WHERE id = $1 AND user_id = $2"
+
+	log.Println(SQLString)
+
+	if _, err := db.Exec(context.Background(), SQLString, append([]any{failId, userId}, elements...)...); err != nil {
+		log.Println(err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	} else {
+		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 
 }
