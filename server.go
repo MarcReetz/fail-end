@@ -71,6 +71,7 @@ func main() {
 				r.Get("/", getFail)
 				r.Put("/", updateFail)
 			})
+			r.Post("/tag", createTag)
 			r.Delete("/fail", deletFail)
 			r.Put("/fail/hit", addHit)
 
