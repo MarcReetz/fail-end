@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Tag struct {
@@ -13,6 +16,8 @@ type Tag struct {
 	UserId int    `json:"userId"`
 	Type   int    `json:"type"`
 }
+
+const tagIdKey contextKey = 2
 
 func createTag(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value(authenticatedUserKey)
@@ -31,5 +36,35 @@ func createTag(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+}
 
+func tagCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tagId := chi.URLParam(r, "tagID")
+		if tagId == "" {
+			http.Error(w, "No TagId suplied", http.StatusBadRequest)
+			return
+		}
+
+		failIdInt, err := strconv.Atoi(tagId)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "No FailId suplied", http.StatusBadRequest)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), tagIdKey, failIdInt)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func deleteTag(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(authenticatedUserKey)
+	tagNumber := r.Context().Value(tagIdKey)
+
+	if _, err := db.Exec(context.Background(), "DELETE FROM security.tags WHERE user_id = $1 AND id = $2", userId, tagNumber); err != nil {
+		http.Error(w, "Somethink went realy Wrong", http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusNoContent)
+	}
 }
