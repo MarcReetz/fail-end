@@ -69,6 +69,7 @@ func main() {
 			r.Route("/fail/{failID}", func(r chi.Router) {
 				r.Use(FailCtx)
 				r.Get("/", getFail)
+				r.Put("/", updateFail)
 			})
 			r.Delete("/fail", deletFail)
 			r.Put("/fail/hit", addHit)
