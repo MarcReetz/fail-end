@@ -79,6 +79,7 @@ func main() {
 			r.Route("/tag/{tagID}", func(r chi.Router) {
 				r.Use(tagCtx)
 				r.Delete("/", deleteTag)
+				r.Get("/", getTag)
 			})
 
 		})
