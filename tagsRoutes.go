@@ -17,7 +17,7 @@ type Tag struct {
 	Id     int    `json:"id"`
 	Title  string `json:"title"`
 	UserId int    `json:"userId"`
-	//Type   int    `json:"type"`
+	Type   string `json:"type"`
 }
 
 var changeAllowedTagField = []string{"title"}
@@ -33,7 +33,7 @@ func createTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := db.Exec(context.Background(), "INSERT INTO security.tags (title, user_id) values($1,$2)", tag.Title, userId); err == nil {
+	if _, err := db.Exec(context.Background(), "INSERT INTO security.tag (title, user_id) values($1,$2)", tag.Title, userId); err == nil {
 		w.WriteHeader(http.StatusOK)
 		return
 	} else {
@@ -69,7 +69,7 @@ func getAllTags(w http.ResponseWriter, r *http.Request) {
 
 	var tag []Tag
 
-	if rows, err := db.Query(context.Background(), "SELECT * FROM security.tags WHERE user_id = $1", userId); err != nil {
+	if rows, err := db.Query(context.Background(), "SELECT * FROM security.tag WHERE user_id = $1", userId); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	} else {
@@ -98,10 +98,10 @@ func getTag(w http.ResponseWriter, r *http.Request) {
 
 	columns, _ := pointifyer.Pointify(&tag)
 
-	if err := db.QueryRow(context.Background(), "SELECT * FROM security.tags WHERE user_id = $1 AND id = $2", userId, tagNumber).Scan(columns...); err != nil {
+	if err := db.QueryRow(context.Background(), "SELECT * FROM security.tag WHERE user_id = $1 AND id = $2", userId, tagNumber).Scan(columns...); err != nil {
 		log.Println(err)
 		if err.Error() == dbNoRowsError {
-			http.Error(w, "No Such Fail", http.StatusNotFound)
+			http.Error(w, "No Such Tag", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -117,7 +117,7 @@ func deleteTag(w http.ResponseWriter, r *http.Request) {
 	userId := r.Context().Value(authenticatedUserKey)
 	tagNumber := r.Context().Value(tagIdKey)
 
-	if _, err := db.Exec(context.Background(), "DELETE FROM security.tags WHERE user_id = $1 AND id = $2", userId, tagNumber); err != nil {
+	if _, err := db.Exec(context.Background(), "DELETE FROM security.tag WHERE user_id = $1 AND id = $2", userId, tagNumber); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	} else {
 		w.WriteHeader(http.StatusNoContent)
@@ -148,7 +148,7 @@ func updateTag(w http.ResponseWriter, r *http.Request) {
 
 	keys = strings.TrimRight(keys, ",")
 
-	SQLString := "UPDATE security.tags SET " + keys + " WHERE id = $1 AND user_id = $2"
+	SQLString := "UPDATE security.tag SET " + keys + " WHERE id = $1 AND user_id = $2"
 
 	log.Println(SQLString)
 
