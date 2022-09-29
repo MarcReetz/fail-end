@@ -155,3 +155,25 @@ func updateFail(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func getAllFails(w http.ResponseWriter, r *http.Request) {
+	userId := r.Context().Value(authenticatedUserKey)
+	var fails []Fail
+	if rows, err := db.Query(context.Background(), "SELECT * FROM security.fail WHERE user_id = $1", userId); err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	} else {
+		for rows.Next() {
+			var temp Fail
+			columns, _ := pointifyer.Pointify(&temp)
+			rows.Scan(columns...)
+			fails = append(fails, temp)
+		}
+		if rows.Err() != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusFound)
+		json.NewEncoder(w).Encode(fails)
+	}
+}
