@@ -96,7 +96,12 @@ func getFail(w http.ResponseWriter, r *http.Request) {
 	log.Println(fail)
 	if err != nil {
 		log.Println(err)
+		if err.Error() == dbNoRowsError {
+			http.Error(w, "No Such Fail", http.StatusNotFound)
+			return
+		}
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusFound)

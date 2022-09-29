@@ -70,7 +70,6 @@ func getAllTags(w http.ResponseWriter, r *http.Request) {
 	var tag []Tag
 
 	if rows, err := db.Query(context.Background(), "SELECT * FROM security.tags WHERE user_id = $1", userId); err != nil {
-		log.Println(err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	} else {
@@ -101,6 +100,10 @@ func getTag(w http.ResponseWriter, r *http.Request) {
 
 	if err := db.QueryRow(context.Background(), "SELECT * FROM security.tags WHERE user_id = $1 AND id = $2", userId, tagNumber).Scan(columns...); err != nil {
 		log.Println(err)
+		if err.Error() == dbNoRowsError {
+			http.Error(w, "No Such Fail", http.StatusNotFound)
+			return
+		}
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	} else {
