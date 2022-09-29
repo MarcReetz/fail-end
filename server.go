@@ -76,12 +76,13 @@ func main() {
 			r.Put("/fail/hit", addHit)
 
 			r.Post("/tag", createTag)
+			r.Get("/tag", getAllTags)
 			r.Route("/tag/{tagID}", func(r chi.Router) {
 				r.Use(tagCtx)
 				r.Delete("/", deleteTag)
 				r.Get("/", getTag)
+				r.Put("/", updateTag)
 			})
-
 		})
 	})
 
