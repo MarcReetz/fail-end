@@ -70,10 +70,9 @@ func main() {
 				r.Use(FailCtx)
 				r.Get("/", getFail)
 				r.Put("/", updateFail)
+				r.Delete("/", deletFail)
+				r.Put("/hit", addHit)
 			})
-
-			r.Delete("/fail", deletFail)
-			r.Put("/fail/hit", addHit)
 
 			r.Post("/tag", createTag)
 			r.Get("/tag", getAllTags)
