@@ -16,6 +16,8 @@ import (
 
 var db *pgxpool.Pool
 
+const dbNoRowsError string = "no rows in result set"
+
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
