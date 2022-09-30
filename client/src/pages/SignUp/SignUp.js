@@ -1,29 +1,26 @@
 import { Box, PasswordInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Checkbox, Button, Group, TextInput } from "@mantine/core";
-import { useAuth } from "../../hooks/useAuth";
 import { Navigate } from "react-router-dom";
 
-export default function Login(props) {
-  //const { login } = useAuth();
+export default function SignUp(props) {
 
   const form = useForm({
     initialValues: {
       email: "",
       password: "",
+      confirmPassword: ""
     },
 
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      password: (value,values) => value !== values.confirmPassword  ? "Passwords did not match" : null,
+      confirmPassword: (value,values) => value !== values.password ? "Passwords did not match" : null,
     },
   });
 
   const onSubmit = () => {
 
-    /*login({
-      email: form.values.email,
-      password: form.values.password
-    });*/
 
     if(props.next){
       return <Navigate to="/home" />;
@@ -48,6 +45,13 @@ export default function Login(props) {
             placeholder="***"
             {...form.getInputProps("password")}
           />
+
+          <PasswordInput
+            label="Confirm password"
+            placeholder="***"
+            {...form.getInputProps("confirmPassword")}
+          />
+
           <Group position="apart" mt="md">
             <Checkbox mt="md" label="Keep me Loged in" />
             <Button type="submit">Submit</Button>
