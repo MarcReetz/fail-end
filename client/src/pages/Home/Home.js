@@ -1,9 +1,9 @@
-import { useAuth } from "../../hooks/useAuth";
 import { Navigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 export default function Home () {
 
-  const { user } = useAuth();
+  var user = Cookies.get("token")
 
   console.log(user)
 

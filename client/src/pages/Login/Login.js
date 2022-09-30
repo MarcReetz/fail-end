@@ -1,8 +1,10 @@
 import { Box, PasswordInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Checkbox, Button, Group, TextInput } from "@mantine/core";
-import { useAuth } from "../../hooks/useAuth";
 import { Navigate } from "react-router-dom";
+import Data from "../../const/const"
+
+
 
 export default function Login(props) {
   //const { login } = useAuth();
@@ -20,16 +22,24 @@ export default function Login(props) {
 
   const onSubmit = () => {
 
+    const response = fetch(Data.urls.getApiLogin,{
+      method: "GET",
+      body: JSON.stringify({email: form.values.email,password: form.values.password})
+    })
+
+    response.then( (data) =>{
+      console.log(data)
+      if(props.next){
+        return <Navigate to="/home" />;
+      }else{
+        return <Navigate to="/home" />;
+      }
+    }
+    )
     /*login({
       email: form.values.email,
       password: form.values.password
     });*/
-
-    if(props.next){
-      return <Navigate to="/home" />;
-    }else{
-      return <Navigate to="/home" />;
-    }
   }
 
   return (
