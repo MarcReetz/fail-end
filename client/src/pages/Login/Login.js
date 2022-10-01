@@ -1,11 +1,12 @@
 import { Box, PasswordInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useNavigate } from "react-router-dom";
 import { Checkbox, Button, Group, TextInput } from "@mantine/core";
-import { useAuth } from "../../hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import Data from "../../const/const"
+import Cookies from "js-cookie";
 
 export default function Login(props) {
-  //const { login } = useAuth();
+  const navigate = useNavigate()
 
   const form = useForm({
     initialValues: {
@@ -20,16 +21,31 @@ export default function Login(props) {
 
   const onSubmit = () => {
 
+    const response = fetch(Data.urls.getApiLogin,{
+      credentials: "include",
+      method: "POST",
+      body: JSON.stringify({username: form.values.email,password: form.values.password})
+    })
+
+    response.then( (data) =>{
+      console.log(data)
+      var allCookies = Cookies.get()
+      allCookies = document.cookie;
+      console.log(allCookies)
+      console.log(allCookies)
+      if(props.next){
+        console.log("first")
+        navigate(props.next)
+      }else{
+        console.log("second")
+        navigate("/home")
+      }
+    }
+    )
     /*login({
       email: form.values.email,
       password: form.values.password
     });*/
-
-    if(props.next){
-      return <Navigate to="/home" />;
-    }else{
-      return <Navigate to="/home" />;
-    }
   }
 
   return (

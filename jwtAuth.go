@@ -87,6 +87,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	// Finally, we set the client cookie for "token" as the JWT we just generated
 	// we also set an expiry time which is the same as the token itself
 	http.SetCookie(w, &http.Cookie{
+		Path:    "/",
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
@@ -143,6 +144,7 @@ func Refresh(w http.ResponseWriter, r *http.Request) {
 
 	// Set the new token as the users `token` cookie
 	http.SetCookie(w, &http.Cookie{
+		Path:    "/",
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
