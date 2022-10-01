@@ -2,6 +2,9 @@ import { Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 export default function Home () {
+  
+  var allCookies = Cookies.get()
+  console.log(allCookies)
 
   var user = Cookies.get("token")
 

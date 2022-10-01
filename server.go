@@ -54,12 +54,12 @@ func main() {
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
+		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
 	r.Route("/", func(r chi.Router) {
-		r.Get("/api/login", Login)
+		r.Post("/api/login", Login)
 		r.Post("/api/signup", signup)
 		//Private
 		r.Route("/api/user", func(r chi.Router) {
