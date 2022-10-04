@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import { Center, Tabs } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import { createStyles } from "@mantine/core";
+import Footer from "../../components/Footer/Footer";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -97,6 +98,7 @@ export default function Home() {
         </nav>
       </header>
       <Outlet />
+      <Footer/>
     </>
   );
 }
