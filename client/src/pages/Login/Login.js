@@ -21,7 +21,7 @@ export default function Login(props) {
 
   const onSubmit = () => {
 
-    const response = fetch(Data.urls.getApiLogin,{
+    const response = fetch(Data.urls.postApiLogin,{
       credentials: "include",
       method: "POST",
       body: JSON.stringify({username: form.values.email,password: form.values.password})
