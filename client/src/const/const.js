@@ -1,6 +1,9 @@
+const baseUrl = "http://localhost:3000"
+
 const Data = {
   urls: {
-    getApiLogin: "http://localhost:3000/api/login"
+    postApiLogin: baseUrl + "/api/login",
+    postApiSignup: baseUrl + "/api/signup"
   }
 }
 

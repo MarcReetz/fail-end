@@ -1,9 +1,12 @@
 import { Box, PasswordInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Checkbox, Button, Group, TextInput } from "@mantine/core";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import Data from "../../const/const";
 
 export default function SignUp(props) {
+
+  var navigate = useNavigate();
 
   const form = useForm({
     initialValues: {
@@ -20,13 +23,18 @@ export default function SignUp(props) {
   });
 
   const onSubmit = () => {
+    console.log("submit sign up")
+    const response = fetch(Data.urls.postApiSignup ,{
+      method: "Post",
+      body: JSON.stringify({username:form.values.email,password:form.values.password})
+    })
 
-
-    if(props.next){
-      return <Navigate to="/home" />;
-    }else{
-      return <Navigate to="/home" />;
-    }
+    response.then( response => {
+      console.log("got response for signUp")
+      if(response.status === 200){
+        navigate("/")
+      }
+    })
   }
 
   return (
