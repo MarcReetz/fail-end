@@ -1,8 +1,13 @@
-import { Anchor, Group } from "@mantine/core";
+import { Anchor, Center, Group, Text } from "@mantine/core";
 import { createStyles } from "@mantine/core";
 import { Link } from "react-router-dom";
 
 const useStyles = createStyles((theme) => ({
+
+  link:{
+    color: theme.colors.gray[5]
+  },
+
   footer: {
     marginTop: 120,
     borderTop: `1px solid ${
@@ -11,37 +16,52 @@ const useStyles = createStyles((theme) => ({
   },
 
   links: {
-    [theme.fn.smallerThan("sm")]: {
-      marginTop: theme.spacing.lg,
-      marginBottom: theme.spacing.sm,
-    },
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
   },
 
   inner: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: `${theme.spacing.md}px ${theme.spacing.md}px`,
-    flexDirection: 'column',
-  }
+    flexDirection: "column",
+
+    [theme.fn.smallerThan("xs")]: {
+      flexDirection: "row",
+      justifyContent: "center",
+      flexWrap: "nowrap",
+    },
+  },
 }));
 
-const links = [{ name: "imprint", link: "/imprint" },{ name: "privacy", link:"/privacy"}];
+const links = [
+  { name: "Imprint", link: "/imprint" },
+  { name: "Privacy", link: "/privacy" },
+];
 
 export default function Footer() {
+  const { classes } = useStyles();
   var items = links.map((link) => {
     return (
-      <Anchor component={Link} to={link.link}>
+      <Anchor component={Link} to={link.link} key={link.name} className={classes.link}>
         {link.name}
       </Anchor>
     );
   });
-  const { classes } = useStyles();
+  
   return (
     <footer className={classes.footer}>
       <div className={classes.inner}>
         <Group className={classes.links}>{items}</Group>
       </div>
+      <Center>
+        <Text color="dimmed" size="sm">
+          © 2022
+          <Anchor href="https://github.com/MarcReetz" target="_blank"> Marc Reetz </Anchor>
+          All rights reserved.
+        </Text>
+      </Center>
     </footer>
   );
 }
