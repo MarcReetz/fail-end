@@ -1,5 +1,6 @@
 import { ScrollArea, Table, createStyles} from "@mantine/core";
 import { useState } from "react";
+import Data from "./../../const/const"
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -29,15 +30,28 @@ export default function GetFailList() {
 
   const { classes, cx } = useStyles();
   const [scrolled, setScrolled] = useState(false);
+  const [rows, setRows] = useState({});
+
+  const result = fetch(Data.urls.apiFail)
+
+
+  //PROBABly has to set to an action
+  result.then( response => {
+    const data = JSON.parse(response.json)
+
+    const allRows = data.map((row) => (
+      <tr key={row.title}>
+        <td>{row.title}</td>
+        <td>{row.description}</td>
+        <td>{row.hits}</td>
+      </tr>
+    ));
+
+    setRows(allRows)
+  })
 
   //define row data 
-  const rows = data.map((row) => (
-    <tr key={row.name}>
-      <td>{row.name}</td>
-      <td>{row.email}</td>
-      <td>{row.company}</td>
-    </tr>
-  ));
+
 
 
   return (
