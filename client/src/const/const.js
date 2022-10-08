@@ -4,7 +4,9 @@ const Data = {
   urls: {
     postApiLogin: baseUrl + "/api/login",
     postApiSignup: baseUrl + "/api/signup",
-    apiFail: baseUrl + "/api/user/fail"
+    apiFail: baseUrl + "/api/user/fail",
+    apiFailHit1: baseUrl + "/api/user/fail/",
+    apiFailHit2: "/hit"
   }
 }
 

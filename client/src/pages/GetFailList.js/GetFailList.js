@@ -1,22 +1,25 @@
-import { ScrollArea, Table, createStyles} from "@mantine/core";
-import { useState } from "react";
-import Data from "./../../const/const"
+import { ScrollArea, Table, createStyles, Button } from "@mantine/core";
+import { useEffect, useState } from "react";
+import Data from "./../../const/const";
 
 const useStyles = createStyles((theme) => ({
   header: {
-    position: 'sticky',
+    position: "sticky",
     top: 0,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-    transition: 'box-shadow 150ms ease',
+    backgroundColor:
+      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+    transition: "box-shadow 150ms ease",
 
-    '&::after': {
+    "&::after": {
       content: '""',
-      position: 'absolute',
+      position: "absolute",
       left: 0,
       right: 0,
       bottom: 0,
       borderBottom: `1px solid ${
-        theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.gray[2]
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[3]
+          : theme.colors.gray[2]
       }`,
     },
   },
@@ -27,32 +30,48 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function GetFailList() {
-
+  //maybe set data to parent component
   const { classes, cx } = useStyles();
   const [scrolled, setScrolled] = useState(false);
-  const [rows, setRows] = useState({});
+  const [data, setData] = useState([]);
 
-  const result = fetch(Data.urls.apiFail)
+  useEffect(() => {
+    const result = fetch(Data.urls.apiFail, {
+      credentials: "include",
+    });
 
+    //PROBABly has to set to an action
+    result.then((response) => {
+      const json = response.json();
+      json.then((value) => {
+        setData(value);
+        console.log(data);
+      });
+    });
+  }, []);
 
-  //PROBABly has to set to an action
-  result.then( response => {
-    const data = JSON.parse(response.json)
+  const addHit = (id) => {
+    const result = fetch(Data.urls.apiFailHit1 + id + Data.urls.apiFailHit2, {
+      credentials: "include",
+      method: "Put",
+    });
 
-    const allRows = data.map((row) => (
-      <tr key={row.title}>
-        <td>{row.title}</td>
-        <td>{row.description}</td>
-        <td>{row.hits}</td>
-      </tr>
-    ));
+    result.then((response) => {
+      if (response.ok) {
+      }
+    });
+  };
 
-    setRows(allRows)
-  })
-
-  //define row data 
-
-
+  const rows = data.map((row) => (
+    <tr key={row.id}>
+      <td>{row.title}</td>
+      <td>{row.description}</td>
+      <td>{row.hits}</td>
+      <td>
+        <Button onClick={() => addHit(row.id)}>Hit</Button>
+      </td>
+    </tr>
+  ));
 
   return (
     <>
@@ -65,9 +84,9 @@ export default function GetFailList() {
             className={cx(classes.header, { [classes.scrolled]: scrolled })}
           >
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Company</th>
+              <th>Fail</th>
+              <th>Description</th>
+              <th>hits</th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
