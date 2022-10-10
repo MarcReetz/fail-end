@@ -40,7 +40,6 @@ export default function GetFailList() {
       credentials: "include",
     });
 
-    //PROBABly has to set to an action
     result.then((response) => {
       const json = response.json();
       json.then((value) => {
@@ -58,6 +57,13 @@ export default function GetFailList() {
 
     result.then((response) => {
       if (response.ok) {
+        const result = data.map(obj => {
+          if (obj.id === id){
+            return { ...obj, hits: obj.hits + 1}
+          }
+          return obj
+        })
+        setData(result)
       }
     });
   };
