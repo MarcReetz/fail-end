@@ -7,6 +7,7 @@ import Logout from "./pages/Login/Logout";
 import SignUp from "./pages/SignUp/SignUp"
 import AddFail from "./pages/AddFail/AddFail";
 import GetFailList from "./pages/GetFailList.js/GetFailList";
+import Page404 from "./pages/404/404";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="add" element={<AddFail/>}/>
             <Route path="list" element={<GetFailList/>}/>
           </Route>
+          <Route path="*" element={<Page404/>}/>
         </Routes>
   );
 }

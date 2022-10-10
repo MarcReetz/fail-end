@@ -82,7 +82,7 @@ export default function GetFailList() {
   return (
     <>
       <ScrollArea
-        sx={{ height: 300 }}
+        sx={{ height: 500 }}
         onScrollPositionChange={({ y }) => setScrolled(y !== 0)}
       >
         <Table sx={{ minWidth: 700 }}>
