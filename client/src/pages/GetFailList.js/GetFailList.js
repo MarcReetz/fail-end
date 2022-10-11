@@ -4,6 +4,7 @@ import Data from "./../../const/const";
 
 const useStyles = createStyles((theme) => ({
   header: {
+    "z-index": 2,
     position: "sticky",
     top: 0,
     backgroundColor:
@@ -27,6 +28,10 @@ const useStyles = createStyles((theme) => ({
   scrolled: {
     boxShadow: theme.shadows.sm,
   },
+
+  button: {
+    "z-index": 0
+  }
 }));
 
 export default function GetFailList() {
@@ -74,7 +79,7 @@ export default function GetFailList() {
       <td>{row.description}</td>
       <td>{row.hits}</td>
       <td>
-        <Button onClick={() => addHit(row.id)}>Hit</Button>
+        <Button className={classes.button} onClick={() => addHit(row.id)}>Hit</Button>
       </td>
     </tr>
   ));
@@ -93,6 +98,7 @@ export default function GetFailList() {
               <th>Fail</th>
               <th>Description</th>
               <th>hits</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>
