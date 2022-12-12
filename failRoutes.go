@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"first-server/client/utils"
-	"first-server/pointifyer"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/MarcReetz/fail-end/client/utils"
+	"github.com/MarcReetz/fail-end/pointifyer"
 
 	"github.com/go-chi/chi/v5"
 )
