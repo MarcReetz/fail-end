@@ -3,9 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"first-server/hash"
 	"log"
 	"net/http"
+
+	"github.com/MarcReetz/fail-end/hash"
 
 	"github.com/jackc/pgx/v5"
 )

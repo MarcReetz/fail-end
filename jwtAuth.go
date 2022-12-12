@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"first-server/hash"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/MarcReetz/fail-end/hash"
 
 	"github.com/golang-jwt/jwt"
 )
