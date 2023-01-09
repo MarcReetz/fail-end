@@ -19,30 +19,12 @@ var db *pgxpool.Pool
 const dbNoRowsError string = "no rows in result set"
 
 func main() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Some error occured. Err: %s", err)
-	}
-	log.Println(os.Getenv("DATABASE_URL"))
-	poolConfig, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatalln("Unable to parse DATABASE_URL:", err)
-	}
+	db = SetUpDatabase()
+	r := SetUpRoutes()
+	http.ListenAndServe(":3000", r)
+}
 
-	log.Println(poolConfig.ConnConfig.Database)
-
-	db, err = pgxpool.NewWithConfig(context.Background(), poolConfig)
-	if err != nil {
-		log.Fatalln("Unable to create connection pool:", err)
-	}
-
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
-		os.Exit(1)
-	}
-
-	defer db.Close()
-
+func SetUpRoutes() chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	// Basic CORS
@@ -91,5 +73,33 @@ func main() {
 	r.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("hello"))
 	})
-	http.ListenAndServe(":3000", r)
+
+	return r
+}
+
+func SetUpDatabase() *pgxpool.Pool {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Some error occured. Err: %s", err)
+	}
+	log.Println(os.Getenv("DATABASE_URL"))
+	poolConfig, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalln("Unable to parse DATABASE_URL:", err)
+	}
+
+	log.Println(poolConfig.ConnConfig.Database)
+
+	database, err := pgxpool.NewWithConfig(context.Background(), poolConfig)
+	if err != nil {
+		log.Fatalln("Unable to create connection pool:", err)
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+
+	defer db.Close()
+	return database
 }
