@@ -22,6 +22,7 @@ func main() {
 	db = SetUpDatabase()
 	r := SetUpRoutes()
 	http.ListenAndServe(":3000", r)
+	defer db.Close()
 }
 
 func SetUpRoutes() chi.Router {
@@ -100,6 +101,5 @@ func SetUpDatabase() *pgxpool.Pool {
 		os.Exit(1)
 	}
 
-	defer db.Close()
 	return database
 }
